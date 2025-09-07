@@ -16,3 +16,11 @@ To get Google App Password, search Online or Follow:-
 Go to google account -> Search app password -> Go to app password -> Create one.
 <br>
 Config file can also be used to Change / Customise body of message.
+<br>
+<p>
+If you are wondering what is that uv.lock file !?
+<br>
+So it is used to get exact .venv or Virtual Environment that i used.
+<br>
+Just install UV by (pip install uv) and then type (uv sync) to get exact environment.
+</p>
