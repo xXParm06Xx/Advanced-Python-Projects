@@ -15,10 +15,12 @@ Must Enter App Password in sidebar.
 To get Google App Password, search Online or Follow:-
 Go to google account -> Search app password -> Go to app password -> Create one.
 <br>
+<br>
 AND Now, this program also support auto password Fetching using .env and os modules
 To save Password inside .env file (must put it under .gitignore for Security, when open-sourcing)
 <br>
 To Make .env file:-
+<br>
 pip install python-dotenv -> make a new file named (.env) -> see .env_example file and paste Template in .env file -> Replace with Your app password
 <br>
 <br>
@@ -31,6 +33,6 @@ Just install UV by (pip install uv) and then type (uv sync) in terminal to get e
 OR Just use Requirement.txt file.
 </p>
 <br>
-<br>
 Author: Parminder Singh
+<br>
 Github: xXParm06Xx
