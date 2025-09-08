@@ -1,7 +1,8 @@
 import streamlit as st
 import smtplib
-import random, time
-import configparser
+import secrets, time
+import configparser, os
+from dotenv import load_dotenv
 
 # Loading Config file
 config = configparser.ConfigParser()
@@ -15,12 +16,6 @@ try:
 
     SERVER_SMTP = config["EMAIL"]["smtp_server"]
     PORT_SMTP = int(config["EMAIL"]["smtp_port"])
-
-    PASS = config["EMAIL"]["sender_pass"].strip()
-    if PASS == "":
-        st.error("Please Enter Password in Config.ini !!")
-        st.stop()
-
     SUBJECT = config["EMAIL"]["subject"]
     MESSAGE_BODY = config["EMAIL"]["message"]
 
@@ -31,7 +26,22 @@ except Exception as e:
 # Sidebar
 st.sidebar.title("Menu")
 name = st.sidebar.text_input("Enter Your Name")
-EMAIL = st.sidebar.text_input("Enter Your Email")
+EMAIL = st.sidebar.text_input("Enter Your Email",help="Email of Sender !")
+
+# Fetching Password using .env
+load_dotenv(override=True)
+
+PASS = os.getenv("MY_PASS")
+if PASS is not None and PASS.strip() == "":
+    PASS = None
+if PASS:
+    st.sidebar.info("Your password is automatically fetched !!")
+else:
+    PASS = st.sidebar.text_input("Enter Your App Email Password", type="password",help="For more details, read README.md !")
+if not PASS:
+    st.warning("\u26A0 Please provide password to continue.")
+    st.stop()
+    
 page = st.sidebar.radio("Select Page:",["Home", "About", "Soon..."])
 st.sidebar.write("-- Made with \u2764\uFE0F By Parm")
 
@@ -49,7 +59,7 @@ def send_email(receiver_email, otp):
     
     except Exception as e:
         st.error(f"\U0000274C ERROR: OTP failed to send. {e}")
-        st.info("Check Details inside Config file !!")
+        st.info("Check App Password or Details inside Config file !!")
         st.stop()
         return False
 
@@ -58,7 +68,7 @@ st.title("\U0001F510 OTP Generator & Verifier")
 st.divider()
 
 if page == "Home":
-    if name and EMAIL and PASS:
+    if name and EMAIL:
         st.write(f"Welcome, {name} !")
         st.subheader(f"Sender: {EMAIL}")
 
@@ -68,7 +78,7 @@ if page == "Home":
         # Send OTP
         if st.button("\U0001f4e9 Send OTP", help="To send OTP on Receiver's Email"):
             if receiver_email:
-                otp = random.randint(100000, 999999)
+                otp = secrets.randbelow(900000) + 100000
                 st.session_state.otp = str(otp)
                 st.session_state.otp_time = time.time()
                 st.session_state.attempts = 0
