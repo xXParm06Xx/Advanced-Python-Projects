@@ -61,7 +61,7 @@ Change the values to any key you prefer, and the app will automatically use your
 ## 📁 Project Structure
 
 ```
-face-detection/
+OpenCV_vid_detection/
 │
 ├── main.py           # Main application file
 ├── config.ini        # Configuration file for keyboard shortcuts
