@@ -17,6 +17,26 @@ A lightweight Python application that uses OpenCV to detect faces, eyes, and smi
 
 Make sure you have Python 3.7+ installed on your system.
 
+### Installation
+
+1. Clone this repository:
+```bash
+git clone https://github.com/xXParm06Xx/OpenCV_vid_detection.git
+cd OpenCV_vid_detection
+```
+
+2. Install the required dependencies:
+```bash
+pip install opencv-python
+```
+
+3. Run the application:
+```bash
+python main.py
+```
+
+That's it! Your webcam should open and start detecting faces automatically.
+
 ## 🎮 Controls
 
 The default keyboard shortcuts are:
