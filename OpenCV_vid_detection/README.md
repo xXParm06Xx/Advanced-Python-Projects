@@ -1,4 +1,4 @@
-# 👁️ Real-Time Face Detection System
+# 👁️ Simple Face Detection System with OpenCV
 
 A lightweight Python application that uses OpenCV to detect faces, eyes, and smiles in real-time through your webcam. Perfect for learning computer vision basics or building upon for more advanced projects!
 
