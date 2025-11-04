@@ -12,7 +12,6 @@ try:
         PAUSE = config["KEYS"]["pause"]
         RECORD = config["KEYS"]["record"]
     else:
-        # default keys
         EXIT = "q"
         SCREENSHOT = "s"
         PAUSE = "p"
@@ -24,13 +23,19 @@ except:
     PAUSE = "p"
     RECORD = "r"
           
-# Load cascades
+# Loading cascades
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 eyes_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 smile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_smile.xml')
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FPS, 144)
+
+# Recording state and video writer
+is_recording = False
+video_writer = None
+recording_number = 1
+screenshot_number = 1
 
 def detection(frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -63,28 +68,84 @@ def detection(frame):
         fps = int(cap.get(cv2.CAP_PROP_FPS))
         cv2.putText(frame, f"FPS: {fps}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (50, 255, 50), 2)
 
+        # Showing recording indicator
+        if is_recording:
+            cv2.circle(frame, (30, 80), 10, (0, 0, 255), -1)  # Red dot
+            cv2.putText(frame, "REC", (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+def start_recording():
+    global is_recording, video_writer, recording_number
+    
+    if not is_recording:
+        frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        os.makedirs("recordings", exist_ok=True)
+        filename = f"recordings/recording_{recording_number}.mp4"
+        
+        # MP4 format - works on Mac, Windows, everywheree
+        codec = cv2.VideoWriter_fourcc(*"mp4v")
+        video_writer = cv2.VideoWriter(filename, codec, 20.0, (frame_width, frame_height))
+        
+        is_recording = True
+        print(f"Recording started: {filename}")
+        recording_number += 1
+    else:
+        # Stop recording
+        is_recording = False
+        if video_writer is not None:
+            video_writer.release() # stops video rec
+            video_writer = None
+        print("Recording stopped!")
+
 def main():
+    global is_recording, video_writer, screenshot_number
+    is_paused = False
+    frame = None  # Store current frame
+    
     while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("Error capturing frame.")
-                break
-
-            detection(frame)
-
-            cv2.imshow("Webcam Feed", frame)
-            
             # keys configuration
             key = cv2.waitKey(1) & 0xFF
 
-            if key == ord(str(EXIT)):
+            if key == ord(EXIT):
                 print("Exiting...")
                 break
 
-            elif key == ord(str(SCREENSHOT)):
+            elif key == ord(PAUSE):
+                is_paused = not is_paused
+                if is_paused:
+                    print("PAUSED. Press 'p' to resume.")
+                else:
+                    print("RESUMED.")
+
+            elif key == ord(RECORD) and not is_paused:
+                start_recording()
+
+            elif key == ord(SCREENSHOT) and frame is not None:
                 os.makedirs("screenshots", exist_ok=True)
-                cv2.imwrite("screenshots/screenshot.jpg", frame)
+                cv2.imwrite(f"screenshots/screenshot_{screenshot_number}.jpg", frame)
                 print("Screenshot saved!")
+                screenshot_number += 1
+
+            # Only process new frames when NOT paused
+            if not is_paused:
+                ret, frame = cap.read()
+                if not ret:
+                    print("Error capturing frame.")
+                    break
+
+                detection(frame)
+                
+                if is_recording and video_writer is not None:
+                    video_writer.write(frame)
+
+            # Always show current frame (paused or not)
+            if frame is not None:
+                cv2.imshow("Webcam Feed", frame)
+    
+    # Cleanup recording
+    if is_recording and video_writer is not None:
+        video_writer.release()
 
 if __name__ == "__main__":
     main()
